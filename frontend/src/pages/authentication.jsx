@@ -13,7 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from '../contexts/AuthContext';
-import { Snackbar } from '@mui/material';
+import { Snackbar, CircularProgress } from '@mui/material';
 
 
 
@@ -24,43 +24,57 @@ export default function Authentication() {
 
     
 
-    const [username, setUsername] = React.useState();
-    const [password, setPassword] = React.useState();
-    const [name, setName] = React.useState();
+    // Change these lines to initialize with empty strings
+    const [username, setUsername] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const [name, setName] = React.useState("");
     const [error, setError] = React.useState();
     const [message, setMessage] = React.useState();
 
 
     const [formState, setFormState] = React.useState(0);
-
     const [open, setOpen] = React.useState(false)
-
+    const [loading, setLoading] = React.useState(false);
 
     const { handleRegister, handleLogin } = React.useContext(AuthContext);
 
     let handleAuth = async () => {
         try {
+            setError("");
+            setLoading(true);
+            
             if (formState === 0) {
-
-                let result = await handleLogin(username, password)
-
-
+                // Login
+                if (!username || !password) {
+                    setError("Please enter username and password");
+                    setLoading(false);
+                    return;
+                }
+                await handleLogin(username, password);
             }
             if (formState === 1) {
+                // Register
+                if (!name || !username || !password) {
+                    setError("Please fill all fields");
+                    setLoading(false);
+                    return;
+                }
                 let result = await handleRegister(name, username, password);
                 console.log(result);
                 setUsername("");
+                setName("");
                 setMessage(result);
                 setOpen(true);
-                setError("")
-                setFormState(0)
-                setPassword("")
+                setError("");
+                setFormState(0);
+                setPassword("");
             }
         } catch (err) {
-
             console.log(err);
-            let message = (err.response.data.message);
+            let message = err?.response?.data?.message || err?.message || "An error occurred. Please try again.";
             setError(message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -75,7 +89,7 @@ export default function Authentication() {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+                        backgroundImage: 'url(https://images.unsplash.com/photo-1667453466805-75bbf36e8707?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)',
                         backgroundRepeat: 'no-repeat',
                         backgroundColor: (t) =>
                             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -153,8 +167,10 @@ export default function Authentication() {
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                                 onClick={handleAuth}
+                                disabled={loading}
+                                startIcon={loading && <CircularProgress size={20} color="inherit" />}
                             >
-                                {formState === 0 ? "Login " : "Register"}
+                                {loading ? "Please wait..." : (formState === 0 ? "Login" : "Register")}
                             </Button>
 
                         </Box>

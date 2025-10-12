@@ -19,7 +19,12 @@ var connections = {};
 
 const peerConfigConnections = {
     "iceServers": [
-        { "urls": "stun:stun.l.google.com:19302" }
+        { "urls": "stun:stun.l.google.com:19302" },
+        { "urls": "stun:stun1.l.google.com:19302" },
+        { "urls": "stun:stun2.l.google.com:19302" },
+        { "urls": "stun:stun3.l.google.com:19302" },
+        { "urls": "stun:stun4.l.google.com:19302" }
+        // Add TURN servers here if you have them
     ]
 }
 
@@ -64,7 +69,7 @@ export default function VideoMeetComponent() {
         console.log("HELLO")
         getPermissions();
 
-    })
+    }, [])
 
     let getDislayMedia = () => {
         if (screen) {
@@ -375,9 +380,10 @@ export default function VideoMeetComponent() {
         return Object.assign(stream.getVideoTracks()[0], { enabled: false })
     }
 
-    let handleVideo = () => {
+    const handleVideo = () => {
         setVideo(!video);
-    }
+    };
+
     let handleAudio = () => {
         setAudio(!audio)
     }
@@ -490,8 +496,8 @@ export default function VideoMeetComponent() {
 
 
                     <div className={styles.buttonContainers}>
-                        <IconButton onClick={handleVideo} style={{ color: "white" }}>
-                            {(video === true) ? <VideocamIcon /> : <VideocamOffIcon />}
+                        <IconButton onClick={handleVideo} style={{ color: 'white' }}>
+                            {video ? <VideocamIcon /> : <VideocamOffIcon />}
                         </IconButton>
                         <IconButton onClick={handleEndCall} style={{ color: "red" }}>
                             <CallEndIcon  />
@@ -502,7 +508,7 @@ export default function VideoMeetComponent() {
 
                         {screenAvailable === true ?
                             <IconButton onClick={handleScreen} style={{ color: "white" }}>
-                                {screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+                                {screen === true ? <StopScreenShareIcon /> : <ScreenShareIcon />}
                             </IconButton> : <></>}
 
                         <Badge badgeContent={newMessages} max={999} color='orange'>

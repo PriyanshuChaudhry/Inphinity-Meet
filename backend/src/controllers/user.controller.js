@@ -1,8 +1,7 @@
 import httpStatus from "http-status";
 import { User } from "../models/user.model.js";
 import bcrypt, { hash } from "bcrypt"
-
-import crypto from "crypto"
+import { generateToken } from "../middleware/auth.middleware.js";
 import { Meeting } from "../models/meeting.model.js";
 const login = async (req, res) => {
 
@@ -22,7 +21,7 @@ const login = async (req, res) => {
         let isPasswordCorrect = await bcrypt.compare(password, user.password)
 
         if (isPasswordCorrect) {
-            let token = crypto.randomBytes(20).toString("hex");
+            let token = generateToken(user._id, user.username);
 
             user.token = token;
             await user.save();
@@ -67,11 +66,8 @@ const register = async (req, res) => {
 
 
 const getUserHistory = async (req, res) => {
-    const { token } = req.query;
-
     try {
-        const user = await User.findOne({ token: token });
-        const meetings = await Meeting.find({ user_id: user.username })
+        const meetings = await Meeting.find({ user_id: req.username })
         res.json(meetings)
     } catch (e) {
         res.json({ message: `Something went wrong ${e}` })
@@ -79,13 +75,11 @@ const getUserHistory = async (req, res) => {
 }
 
 const addToHistory = async (req, res) => {
-    const { token, meeting_code } = req.body;
+    const { meeting_code } = req.body;
 
     try {
-        const user = await User.findOne({ token: token });
-
         const newMeeting = new Meeting({
-            user_id: user.username,
+            user_id: req.username,
             meetingCode: meeting_code
         })
 
