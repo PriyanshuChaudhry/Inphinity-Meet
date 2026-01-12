@@ -13,9 +13,6 @@ export default function LandingPage() {
                 <img src="/logo.png" alt="Inphinity Meet" className="logo" />
                 <div className='navlist'>
                     <p onClick={() => {
-                        router("/aljk23")
-                    }}>Join as Guest</p>
-                    <p onClick={() => {
                         router("/auth")
 
                     }}>Register</p>
